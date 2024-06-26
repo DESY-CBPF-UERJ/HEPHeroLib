@@ -437,7 +437,7 @@ class harvester:
         
             #--------------------------------------------------------------------------------
             #elif( systematics[iSource][1] == 2 ):  
-            elif( (iSource != "CV") and (iSource != "Scales") and (iSource != "PDF") and (iSource != "Recoil") and (iSource != "TopPt") and ("_" not in iSource) ):
+            elif( (iSource != "CV") and (iSource != "Scales") and (iSource != "PDF") and (iSource != "Recoil") and (iSource != "TopPt") and (iSource != "WPt") and ("_" not in iSource) ):
             
                 for iUniverse in range(2):  # loop in the universes
                     list_Hist_ProcType = []
@@ -904,7 +904,7 @@ class harvester:
 
 
             #--------------------------------------------------------------------------------
-            elif( iSource == "TopPt" ):
+            elif( (iSource == "TopPt") or (iSource == "WPt") ):
 
                 list_Hist_ProcType_up = []
                 list_Unc_ProcType_up = []
