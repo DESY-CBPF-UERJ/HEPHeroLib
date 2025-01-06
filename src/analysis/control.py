@@ -164,8 +164,11 @@ class control:
         
         
     #==============================================================================================================
-    def roc_plot(self, label='Signal-bkg ROC', color='blue', linestyle="-"):
-        plt.plot(self.rej_others, self.eff_signal, color=color, label=label, linestyle=linestyle)
+    def roc_plot(self, label='Signal-bkg ROC', color='blue', linestyle="-", version=1):
+        if version == 1:
+            plt.plot(self.rej_others, self.eff_signal, color=color, label=label, linestyle=linestyle)
+        elif version == 2:
+            plt.plot(self.eff_signal, self.eff_others, color=color, label=label, linestyle=linestyle)
     
     #==============================================================================================================
     def auc(self, method="trapezoidal"):

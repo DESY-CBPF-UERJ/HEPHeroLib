@@ -86,7 +86,7 @@ class harvester:
         
         self.sys_IDs = []
         self.sys_labels = []
-        self.sys_colors = ["dimgrey", "limegreen", "blue", "red",  "darkgoldenrod", "darkgreen", "darkorange",  "skyblue", "darkviolet", "aqua", "gold", "pink", "magenta", "darkkhaki", "lime", "greenyellow", "sandybrown", "brown", "mediumpurple", "forestgreen", "fuchsia", "goldenrod", "springgreen", "tomato", "royalblue", "chocolate", "aquamarine", "orange", "limegreen", "blue", "red",  "darkgoldenrod", "darkgreen", "darkorange",  "skyblue", "darkviolet", "aqua", "gold", "pink", "magenta", "darkkhaki", "lime", "greenyellow", "sandybrown", "brown", "mediumpurple", "forestgreen", "fuchsia", "goldenrod", "springgreen", "tomato", "royalblue", "chocolate", "aquamarine", "orange"]  
+        self.sys_colors = ["#7F7F7F", "#1F77B4", "#FF7F0E", "#2CA02C", "#D62728", "#9467BD", "#8C564B", "#E377C2", "#BCBD22", "#17BECF", "#C7C7C7", "#AEC7E8", "#FFBB78", "#98DF8A", "#FF9896", "#C5B0D5", "#C49C94", "#F7B6D2", "#DBDB8D", "#9EDAE5", "dimgrey", "limegreen", "blue", "red", "darkgoldenrod", "darkgreen", "darkorange", "skyblue", "darkviolet", "aqua", "gold", "pink", "magenta", "darkkhaki", "lime", "greenyellow", "sandybrown", "brown", "mediumpurple", "forestgreen", "fuchsia", "goldenrod", "springgreen", "tomato", "royalblue", "chocolate", "aquamarine", "orange"]
         
         #self.smear_factor = smear_factor
         self.groups = groups
@@ -193,9 +193,8 @@ class harvester:
                         End_raw = proc_dic["End"]
                         Nbins_raw = proc_dic["Nbins"]
                         LumiUnc = proc_dic["LumiUnc"]*0.01
-                        LumiUncorrUnc = proc_dic["LumiUncorrUnc"]*0.01
-                        LumiFCUnc = proc_dic["LumiFCUnc"]*0.01
-                        LumiFC1718Unc = proc_dic["LumiFC1718Unc"]*0.01
+                        LumiValuesUnc = np.array(proc_dic["LumiValuesUnc"])*0.01
+                        LumiTagsUnc = proc_dic["LumiTagsUnc"]
                         Delta_raw = (End_raw - Start_raw)/Nbins_raw
                     
                         Hist_new = [0]*(len(bins)-1)
@@ -263,9 +262,8 @@ class harvester:
                             list_Hist_ProcType_ProcSF_down.append(Hist_ProcType)
                 
                 self.LumiUnc = LumiUnc
-                self.LumiUncorrUnc = LumiUncorrUnc
-                self.LumiFCUnc = LumiFCUnc
-                self.LumiFC1718Unc = LumiFC1718Unc
+                self.LumiValuesUnc = LumiValuesUnc
+                self.LumiTagsUnc = LumiTagsUnc
                 
                 self.hist_table3D[0][0] = list_Hist_ProcType
                 self.unc_table3D[0][0] = list_Unc_ProcType
@@ -2401,19 +2399,19 @@ class harvester:
             
             if mode == "shape":
                 if self.sys_labels[k] == "Lumi":
-                    syst_string_uncorr = '{:<32s}'.format("CMS_"+self.sys_labels[k]+"_"+self.period) + '{:<8s}'.format("lnN")
-                    syst_string_fc = '{:<32s}'.format("CMS_"+self.sys_labels[k]+"_fc") + '{:<8s}'.format("lnN")
-                    syst_string_fc1718 = '{:<32s}'.format("CMS_"+self.sys_labels[k]+"_fc1718") + '{:<8s}'.format("lnN")
-                    for j in range(len(self.processes)): 
-                        syst_string_uncorr = syst_string_uncorr + '{0:<30s}'.format(str('{:.6f}'.format(round(1-self.LumiUncorrUnc,6)))+"/"+str('{:.6f}'.format(round(1+self.LumiUncorrUnc,6))))
-                        syst_string_fc = syst_string_fc + '{0:<30s}'.format(str('{:.6f}'.format(round(1-self.LumiFCUnc,6)))+"/"+str('{:.6f}'.format(round(1+self.LumiFCUnc,6))))
-                        syst_string_fc1718 = syst_string_fc1718 + '{0:<30s}'.format(str('{:.6f}'.format(round(1-self.LumiFC1718Unc,6)))+"/"+str('{:.6f}'.format(round(1+self.LumiFC1718Unc,6))))
-                    syst_string_uncorr = syst_string_uncorr + "\n"
-                    syst_string_fc = syst_string_fc + "\n"
-                    syst_string_fc1718 = syst_string_fc1718 + "\n"
-                    syst_string_list.append(syst_string_uncorr)
-                    syst_string_list.append(syst_string_fc)
-                    syst_string_list.append(syst_string_fc1718)
+
+                    syst_string_lumi = []
+                    for tagUnc in self.LumiTagsUnc:
+                        if tagUnc == "uncorr":
+                            syst_string_lumi.append('{:<32s}'.format("CMS_"+self.sys_labels[k]+"_"+self.period) + '{:<8s}'.format("lnN"))
+                        else:
+                            syst_string_lumi.append('{:<32s}'.format("CMS_"+self.sys_labels[k]+"_"+tagUnc) + '{:<8s}'.format("lnN"))
+
+                    for ilumi in range(len(self.LumiValuesUnc)):
+                        for j in range(len(self.processes)):
+                            syst_string_lumi[ilumi] = syst_string_lumi[ilumi] + '{0:<30s}'.format(str('{:.6f}'.format(round(1-self.LumiValuesUnc[ilumi],6)))+"/"+str('{:.6f}'.format(round(1+self.LumiValuesUnc[ilumi],6))))
+                        syst_string_lumi[ilumi] = syst_string_lumi[ilumi] + "\n"
+                        syst_string_list.append(syst_string_lumi[ilumi])
                 
                 if self.sys_labels[k] != "Lumi" and self.sys_labels[k] != "Stat":
                     
