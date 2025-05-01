@@ -76,6 +76,7 @@ def style(
     legend_ncol=1, 
     legend_loc='upper right',
     legend_latex=False,
+    legend_size=10.5,
     energy_cm=None,
     lumi=None,
     year=None,  #deprecated
@@ -148,6 +149,6 @@ def style(
 
     if legend_latex:
         matplotlib.rcParams['text.usetex'] = True
-    ax.legend(numpoints=1, ncol=legend_ncol, prop={'size': 10.5}, frameon=False, loc=legend_loc)
+    ax.legend(numpoints=1, ncol=legend_ncol, prop={'size': legend_size}, frameon=False, loc=legend_loc)
     if legend_latex:
         matplotlib.rcParams['text.usetex'] = False

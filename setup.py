@@ -58,6 +58,7 @@ setup(
         "statsmodels>=0.12.2",
         "h5py>=2.10.0",
         "iminuit>=2.25.2",
+        "onnxruntime>=1.19.2",
     ],
     cmdclass={
         'build_py': build_py
