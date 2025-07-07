@@ -205,6 +205,7 @@ def ratio_plot( ax, ynum, errnum, yden, errden, bins=np.linspace(0,100,5), color
         if yden[i] == 0:
             yratio[i] = 99999
             yeratio[i] = 0
+            y2ratio[i] = 1
             ye2ratio[i] = 0
         else:
             yratio[i] = ynum[i]/yden[i]
@@ -221,11 +222,11 @@ def ratio_plot( ax, ynum, errnum, yden, errden, bins=np.linspace(0,100,5), color
         for p in pats:
             ax.add_patch(p) 
     
-        ax.axhline(1, color='red', linestyle='-', linewidth=0.5)
+        ax.axhline(1, color='grey', linestyle='-', linewidth=0.5)
     
         ax.errorbar(x+0.5*dx, yratio, yerr=[yeratio, yeratio], xerr=0.5*dx, fmt='.', ecolor='black', color='black', elinewidth=0.7, capsize=0)
     elif numerator == "mc":
-        ax.errorbar(x+0.5*dx, y2ratio, yerr=[ye2ratio, ye2ratio], xerr=0.5*dx, fmt=',', ecolor="red", color="red", elinewidth=1.2, capsize=0)
+        ax.errorbar(x+0.5*dx, y2ratio, yerr=[ye2ratio, ye2ratio], xerr=0.5*dx, fmt=',', ecolor="grey", color="grey", elinewidth=1.2, capsize=0)
     
         ax.errorbar(x+0.5*dx, yratio, yerr=[yeratio, yeratio], xerr=0.5*dx, fmt=',', ecolor=color, color=color, elinewidth=1.2, capsize=0)
     
