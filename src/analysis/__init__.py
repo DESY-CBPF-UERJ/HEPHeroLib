@@ -19,6 +19,7 @@ from .statistic import (
     #pdf_efficiency,
     get_interval,
     correlation,
+    smooth_array,
     analysis_model,
 )
 
