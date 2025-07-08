@@ -145,6 +145,109 @@ def correlation(x, y, weight=None):
     return cov_xy/(cov_xx*cov_yy)
 
 
+def smooth_array(x, repeat=1):
+    # 353QH
+    # void  TH1::SmoothArray(Int_t nn, Double_t *xx, Int_t ntimes)
+    nbins = len(x)
+    for ipass in range(repeat):
+        if nbins >= 3:
+            nn = nbins
+
+            xx = np.zeros_like(x)
+            for iBin in range(nbins):
+                if x[iBin] > 0:
+                    xx[iBin] = x[iBin]
+
+            # first copy original data into temp array -> copied xx to zz
+            zz = xx.copy()
+
+
+            for noent in range(2):  # run algorithm two times
+
+                #  do 353 i.e. running median 3, 5, and 3 in a single loop
+                for kk in range(3):
+                    yy = zz.copy()
+
+                    if kk != 1:
+                        medianType = 3
+                        ifirst = 1
+                        ilast = nn-1
+                    else:
+                        medianType = 5
+                        ifirst = 2
+                        ilast = nn-2
+
+                    # do all elements beside the first and last point for median 3
+                    #  and first two and last 2 for median 5
+                    hh = np.zeros(medianType)
+                    for ii in range(ifirst,ilast,1):
+                        for jj in range(0,medianType,1):
+                            hh[jj] = yy[ii - ifirst + jj]
+                        zz[ii] = np.median(hh)
+
+
+                    if kk == 0:   # first median 3
+                        # first point
+                        hh[0] = zz[1]
+                        hh[1] = zz[0]
+                        hh[2] = 3*zz[1] - 2*zz[2]
+                        zz[0] = np.median(hh)
+                        # last point
+                        hh[0] = zz[nn - 2];
+                        hh[1] = zz[nn - 1];
+                        hh[2] = 3*zz[nn - 2] - 2*zz[nn - 3];
+                        zz[nn - 1] = np.median(hh)
+
+                    if kk == 1:   #  median 5
+                        for ii in range(0,3,1):
+                            hh[ii] = yy[ii]
+                        zz[1] = np.median(hh)
+                        # last two points
+                        for ii in range(0,3,1):
+                            hh[ii] = yy[nn - 3 + ii]
+                        zz[nn - 2] = np.median(hh)
+
+
+
+                yy = zz.copy()  # -> copied zz to yy
+
+                # quadratic interpolation for flat segments
+                for ii in range(2,nn-2,1):
+                    if (zz[ii - 1] != zz[ii]) or (zz[ii] != zz[ii + 1]):
+                        continue
+                    hh[0] = zz[ii - 2] - zz[ii]
+                    hh[1] = zz[ii + 2] - zz[ii]
+                    if hh[0]*hh[1] <= 0:
+                        continue
+                    jk = 1
+                    if np.abs(hh[1]) > np.abs(hh[0]):
+                        jk = -1
+                    yy[ii] = -0.5*zz[ii - 2*jk] + zz[ii]/0.75 + zz[ii + 2*jk]/6.
+                    yy[ii + jk] = 0.5*(zz[ii + 2*jk] - zz[ii - 2*jk]) + zz[ii]
+
+                # running means
+                for ii in range(1,nn-1,1):
+                    zz[ii] = 0.25*yy[ii - 1] + 0.5*yy[ii] + 0.25*yy[ii + 1]
+                zz[0] = yy[0]
+                zz[nn - 1] = yy[nn - 1]
+
+                if noent == 0:
+                    # save computed values
+                    rr = zz.copy()  # -> copied zz to rr
+
+                    # COMPUTE  residuals
+                    for ii in range(0,nn,1):
+                        zz[ii] = xx[ii] - zz[ii]
+
+            xmin = np.amin(xx)
+            for ii in range(0,nn,1):
+                if xmin < 0:
+                    xx[ii] = rr[ii] + zz[ii]
+                else: # make smoothing defined positive - not better using 0 ?
+                    xx[ii] = max(rr[ii] + zz[ii], 0.0)
+
+    return xx
+
 #======================================================================================================================
 class analysis_model:
     def __init__(self, xe_regions, n_regions, t_regions, tsys_regions, N_rateParam=1):
